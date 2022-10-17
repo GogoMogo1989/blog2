@@ -21,21 +21,15 @@ connectToDb((err) => {
 // routes
 app.get('/blog', (req, res) => {
 
-  const page = req.query.p || 0
-  const booksPerPage = 3
 
-
-
-  let books = []
+  let blogs = []
 
   db.collection('blog')
     .find()
     .sort({author: 1})
-    .skip(page * booksPerPage)
-    .limit(booksPerPage)
-    .forEach(book => books.push(book))
+    .forEach(blog => blogs.push(blog))
     .then(() => {
-      res.status(200).json(books)
+      res.status(200).json(blogs)
     })
     .catch(() => {
       res.status(500).json({error: 'Could not fetch the documents'})
@@ -59,10 +53,10 @@ app.get('/blog/:id', (req, res) => {
 })
 
 app.post('/blog', (req, res) => {
-    const book = req.body
+    const blog = req.body
   
     db.collection('blog')
-      .insertOne(book)
+      .insertOne(blog)
       .then(result => {
         res.status(201).json(result)
       })
@@ -88,23 +82,4 @@ app.post('/blog', (req, res) => {
       res.status(500).json({error: 'Could not delete document'})
     }
 
-  })
-
-  app.patch('/blog/:id', (req, res) => {
-    const updates = req.body
-  
-    if (ObjectId.isValid(req.params.id)) {
-  
-      db.collection('blog')
-        .updateOne({ _id:  ObjectId(req.params.id) }, {$set: updates})
-        .then(result => {
-          res.status(200).json(result)
-        })
-        .catch(err => {
-          res.status(500).json({error: 'Could not update document'})
-        })
-  
-    } else {
-      res.status(500).json({error: 'Could not update document'})
-    }
   })
